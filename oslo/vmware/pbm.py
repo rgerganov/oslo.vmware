@@ -21,10 +21,9 @@ Refer http://goo.gl/GR2o6U for more details.
 """
 
 import logging
-import suds
 import suds.sax.element as element
 
-from oslo.vmware import vim
+from oslo.vmware import service
 from oslo.vmware import vim_util
 
 
@@ -34,11 +33,11 @@ SERVICE_TYPE = 'PbmServiceInstance'
 LOG = logging.getLogger(__name__)
 
 
-class PBMClient(vim.Vim):
+class Pbm(service.Service):
     """SOAP based PBM client."""
 
-    def __init__(self, pbm_wsdl_loc, protocol='https', host='localhost',
-                 port=443):
+    def __init__(self, protocol='https', host='localhost', port=443,
+                 wsdl_url=None):
         """Constructs a PBM client object.
 
         :param pbm_wsdl_loc: PBM WSDL file location
@@ -46,29 +45,22 @@ class PBMClient(vim.Vim):
         :param host: server IP address or host name
         :param port: port for connection
         """
-        self._url = vim_util.get_soap_url(protocol, host, port, 'pbm')
-        self._pbm_client = suds.client.Client(pbm_wsdl_loc, location=self._url)
-        self._pbm_service_content = None
+        base_url = service.Service.build_url(protocol, host, port)
+        self.wsdl_url = wsdl_url
+        self.soap_url = base_url + '/pbm'
+        super(Pbm, self).__init__(self.wsdl_url, self.soap_url)
 
-    def set_cookie(self, cookie):
-        """Set the authenticated VIM session's cookie in the SOAP client.
+    def set_soap_cookie(self, cookie):
+        """Set the specified vCenter cookie in the SOAP header
 
         :param cookie: cookie to set
         """
         elem = element.Element('vcSessionCookie').setText(cookie)
-        self._pbm_client.set_options(soapheaders=elem)
+        self.client.set_options(soapheaders=elem)
 
-    @property
-    def client(self):
-        return self._pbm_client
-
-    @property
-    def service_content(self):
-        if not self._pbm_service_content:
-            si_moref = vim_util.get_moref(SERVICE_INSTANCE, SERVICE_TYPE)
-            self._pbm_service_content = (
-                self._pbm_client.service.PbmRetrieveServiceContent(si_moref))
-        return self._pbm_service_content
+    def retrieve_service_content(self):
+        ref = vim_util.get_moref(SERVICE_INSTANCE, SERVICE_TYPE)
+        return self.PbmRetrieveServiceContent(ref)
 
 
 def get_all_profiles(session):

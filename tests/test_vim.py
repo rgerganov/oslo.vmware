@@ -24,6 +24,7 @@ import mock
 import suds
 
 from oslo.vmware import exceptions
+from oslo.vmware import service
 from oslo.vmware import vim
 from oslo.vmware import vim_util
 from tests import base
@@ -35,12 +36,12 @@ class VimMessagePluginTest(base.TestCase):
     def test_add_attribute_for_value(self):
         node = mock.Mock()
         node.name = 'value'
-        plugin = vim.VimMessagePlugin()
+        plugin = service.VimMessagePlugin()
         plugin.add_attribute_for_value(node)
         node.set.assert_called_once_with('xsi:type', 'xsd:string')
 
     def test_marshalled(self):
-        plugin = vim.VimMessagePlugin()
+        plugin = service.VimMessagePlugin()
         context = mock.Mock()
         plugin.marshalled(context)
         context.envelope.prune.assert_called_once_with()
@@ -58,10 +59,11 @@ class VimTest(base.TestCase):
         self.SudsClientMock = patcher.start()
 
     @mock.patch.object(vim.Vim, '__getattr__', autospec=True)
-    def test_init(self, getattr_mock):
+    def test_service_content(self, getattr_mock):
         getattr_ret = mock.Mock()
         getattr_mock.side_effect = lambda *args: getattr_ret
         vim_obj = vim.Vim()
+        vim_obj.service_content
         getattr_mock.assert_called_once_with(vim_obj, 'RetrieveServiceContent')
         getattr_ret.assert_called_once_with('ServiceInstance')
         self.assertEqual(self.SudsClientMock.return_value, vim_obj.client)
@@ -104,7 +106,7 @@ class VimTest(base.TestCase):
 
         vim_obj = vim.Vim()
         attr_name = 'powerOn'
-        service_mock = vim_obj._client.service
+        service_mock = vim_obj.client.service
         setattr(service_mock, attr_name, side_effect)
         ret = vim_obj.powerOn(managed_object)
         self.assertEqual(resp, ret)
@@ -119,7 +121,7 @@ class VimTest(base.TestCase):
 
         vim_obj = vim.Vim()
         attr_name = 'retrievePropertiesEx'
-        service_mock = vim_obj._client.service
+        service_mock = vim_obj.client.service
         setattr(service_mock, attr_name, side_effect)
         self.assertRaises(exceptions.VimFaultException,
                           lambda: vim_obj.retrievePropertiesEx(managed_object))
@@ -148,7 +150,7 @@ class VimTest(base.TestCase):
 
         vim_obj = vim.Vim()
         attr_name = 'powerOn'
-        service_mock = vim_obj._client.service
+        service_mock = vim_obj.client.service
         setattr(service_mock, attr_name, side_effect)
 
         try:
@@ -163,7 +165,7 @@ class VimTest(base.TestCase):
         vim_obj = vim.Vim()
         # no powerOn method in Vim
         service_mock = mock.Mock(spec=vim.Vim)
-        vim_obj._client.service = service_mock
+        vim_obj.client.service = service_mock
         self.assertRaises(exceptions.VimAttributeException,
                           lambda: vim_obj.powerOn(managed_object))
 
@@ -177,7 +179,7 @@ class VimTest(base.TestCase):
 
         vim_obj = vim.Vim()
         attr_name = 'powerOn'
-        service_mock = vim_obj._client.service
+        service_mock = vim_obj.client.service
         setattr(service_mock, attr_name, side_effect)
         self.assertRaises(exceptions.VimSessionOverLoadException,
                           lambda: vim_obj.powerOn(managed_object))
@@ -192,7 +194,7 @@ class VimTest(base.TestCase):
 
         vim_obj = vim.Vim()
         attr_name = 'powerOn'
-        service_mock = vim_obj._client.service
+        service_mock = vim_obj.client.service
         setattr(service_mock, attr_name, side_effect)
         self.assertRaises(exceptions.VimSessionOverLoadException,
                           lambda: vim_obj.powerOn(managed_object))
@@ -207,7 +209,7 @@ class VimTest(base.TestCase):
 
         vim_obj = vim.Vim()
         attr_name = 'powerOn'
-        service_mock = vim_obj._client.service
+        service_mock = vim_obj.client.service
         setattr(service_mock, attr_name, side_effect)
         self.assertRaises(exceptions.VimSessionOverLoadException,
                           lambda: vim_obj.powerOn(managed_object))
@@ -222,7 +224,7 @@ class VimTest(base.TestCase):
 
         vim_obj = vim.Vim()
         attr_name = 'powerOn'
-        service_mock = vim_obj._client.service
+        service_mock = vim_obj.client.service
         setattr(service_mock, attr_name, side_effect)
         self.assertRaises(exceptions.VimConnectionException,
                           lambda: vim_obj.powerOn(managed_object))
@@ -237,7 +239,7 @@ class VimTest(base.TestCase):
 
         vim_obj = vim.Vim()
         attr_name = 'powerOn'
-        service_mock = vim_obj._client.service
+        service_mock = vim_obj.client.service
         setattr(service_mock, attr_name, side_effect)
         self.assertRaises(exceptions.VimConnectionException,
                           lambda: vim_obj.powerOn(managed_object))
@@ -259,21 +261,21 @@ class VimTest(base.TestCase):
 
         vim_obj = vim.Vim()
         attr_name = 'powerOn'
-        service_mock = vim_obj._client.service
+        service_mock = vim_obj.client.service
         setattr(service_mock, attr_name, side_effect)
         self.assertRaises(exception, lambda: vim_obj.powerOn(managed_object))
 
     def test_vim_request_handler_with_address_in_use_error(self):
         self._test_vim_request_handler_with_exception(
-            vim.ADDRESS_IN_USE_ERROR, exceptions.VimSessionOverLoadException)
+            service.ADDRESS_IN_USE_ERROR, exceptions.VimSessionOverLoadException)
 
     def test_vim_request_handler_with_conn_abort_error(self):
         self._test_vim_request_handler_with_exception(
-            vim.CONN_ABORT_ERROR, exceptions.VimSessionOverLoadException)
+            service.CONN_ABORT_ERROR, exceptions.VimSessionOverLoadException)
 
     def test_vim_request_handler_with_resp_not_xml_error(self):
         self._test_vim_request_handler_with_exception(
-            vim.RESP_NOT_XML_ERROR, exceptions.VimSessionOverLoadException)
+            service.RESP_NOT_XML_ERROR, exceptions.VimSessionOverLoadException)
 
     def test_vim_request_handler_with_generic_error(self):
         self._test_vim_request_handler_with_exception(
