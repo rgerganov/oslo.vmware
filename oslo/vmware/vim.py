@@ -19,6 +19,7 @@ Classes for making VMware VI SOAP calls.
 
 from oslo.vmware import service
 
+
 class Vim(service.Service):
     """VIM API Client."""
 

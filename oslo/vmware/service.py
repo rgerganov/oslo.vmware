@@ -37,7 +37,7 @@ RESP_NOT_XML_ERROR = 'Response is "text/html", not "text/xml"'
 LOG = logging.getLogger(__name__)
 
 
-class VimMessagePlugin(suds.plugin.MessagePlugin):
+class ServiceMessagePlugin(suds.plugin.MessagePlugin):
     """Suds plug-in handling some special cases while calling VI SDK."""
 
     def add_attribute_for_value(self, node):
@@ -83,7 +83,7 @@ class Service(object):
         self.soap_url = soap_url
         self.client = suds.client.Client(self.wsdl_url,
                                          location=self.soap_url,
-                                         plugins=[VimMessagePlugin()])
+                                         plugins=[ServiceMessagePlugin()])
         self._service_content = None
 
     @staticmethod

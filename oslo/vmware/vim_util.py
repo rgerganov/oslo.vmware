@@ -17,7 +17,6 @@
 The VMware API utility module.
 """
 
-import netaddr
 import suds
 
 
