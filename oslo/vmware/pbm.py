@@ -14,7 +14,7 @@
 #    under the License.
 
 """
-VMware PBM client and PBM related utility methods
+VMware PBM service client and PBM related utility methods
 
 PBM is used for policy based placement in VMware datastores.
 Refer http://goo.gl/GR2o6U for more details.
@@ -34,16 +34,16 @@ LOG = logging.getLogger(__name__)
 
 
 class Pbm(service.Service):
-    """SOAP based PBM client."""
+    """Service class that provides access to the Storage Policy API."""
 
     def __init__(self, protocol='https', host='localhost', port=443,
                  wsdl_url=None):
-        """Constructs a PBM client object.
+        """Constructs a PBM service client object.
 
-        :param pbm_wsdl_loc: PBM WSDL file location
         :param protocol: http or https
         :param host: server IP address or host name
         :param port: port for connection
+        :param wsdl_url: PBM WSDL url
         """
         base_url = service.Service.build_url(protocol, host, port)
         self.wsdl_url = wsdl_url

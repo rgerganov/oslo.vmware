@@ -13,10 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-"""
-TODO
-"""
-
 import httplib
 import urllib2
 
@@ -150,7 +146,7 @@ class ServiceTest(base.TestCase):
     def test_request_handler_with_attribute_error(self):
         managed_object = 'VirtualMachine'
         svc_obj = service.Service()
-        # no powerOn method in Vim
+        # no powerOn method in Service
         service_mock = mock.Mock(spec=service.Service)
         svc_obj.client.service = service_mock
         self.assertRaises(exceptions.VimAttributeException,
@@ -252,20 +248,20 @@ class ServiceTest(base.TestCase):
         setattr(service_mock, attr_name, side_effect)
         self.assertRaises(exception, lambda: svc_obj.powerOn(managed_object))
 
-    def test_vim_request_handler_with_address_in_use_error(self):
+    def test_request_handler_with_address_in_use_error(self):
         self._test_request_handler_with_exception(
             service.ADDRESS_IN_USE_ERROR,
             exceptions.VimSessionOverLoadException)
 
-    def test_vim_request_handler_with_conn_abort_error(self):
+    def test_request_handler_with_conn_abort_error(self):
         self._test_request_handler_with_exception(
             service.CONN_ABORT_ERROR, exceptions.VimSessionOverLoadException)
 
-    def test_vim_request_handler_with_resp_not_xml_error(self):
+    def test_request_handler_with_resp_not_xml_error(self):
         self._test_request_handler_with_exception(
             service.RESP_NOT_XML_ERROR, exceptions.VimSessionOverLoadException)
 
-    def test_vim_request_handler_with_generic_error(self):
+    def test_request_handler_with_generic_error(self):
         self._test_request_handler_with_exception(
             'GENERIC_ERROR', exceptions.VimException)
 

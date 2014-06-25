@@ -14,7 +14,7 @@
 #    under the License.
 
 """
-Classes that provide access to vSphere services.
+Common classes that provide access to vSphere services.
 """
 
 import httplib
@@ -67,18 +67,11 @@ class ServiceMessagePlugin(suds.plugin.MessagePlugin):
 
 
 class Service(object):
-    """VIM API Client."""
+    """Base class containing common functionality for invoking vSphere
+    services
+    """
 
     def __init__(self, wsdl_url=None, soap_url=None):
-        """Create communication interfaces for initiating SOAP transactions.
-
-        :param protocol: http or https
-        :param host: server IP address or host name
-        :param port: port for connection
-        :param wsdl_url: WSDL file location
-        :raises: VimException, VimFaultException, VimAttributeException,
-                 VimSessionOverLoadException, VimConnectionException
-        """
         self.wsdl_url = wsdl_url
         self.soap_url = soap_url
         self.client = suds.client.Client(self.wsdl_url,
@@ -149,8 +142,8 @@ class Service(object):
     def __getattr__(self, attr_name):
         """Returns the method to invoke API identified by param attr_name."""
 
-        def vim_request_handler(managed_object, **kwargs):
-            """Handler for VIM API calls.
+        def request_handler(managed_object, **kwargs):
+            """Handler for vSphere API calls.
 
             Invokes the API and parses the response for fault checking and
             other errors.
@@ -234,7 +227,7 @@ class Service(object):
                 else:
                     raise exceptions.VimException(
                         _("Exception in %s.") % attr_name, excep)
-        return vim_request_handler
+        return request_handler
 
     def __repr__(self):
         return "vSphere Service"

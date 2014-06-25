@@ -13,24 +13,20 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-"""
-Classes for making VMware VI SOAP calls.
-"""
-
 from oslo.vmware import service
 
 
 class Vim(service.Service):
-    """VIM API Client."""
+    """Service class that provides access to the VIM API."""
 
     def __init__(self, protocol='https', host='localhost', port=None,
                  wsdl_url=None):
-        """Create communication interfaces for initiating SOAP transactions.
+        """Constructs a VIM service client object.
 
         :param protocol: http or https
         :param host: server IP address or host name
         :param port: port for connection
-        :param wsdl_loc: WSDL file location
+        :param wsdl_url: VIM WSDL url
         :raises: VimException, VimFaultException, VimAttributeException,
                  VimSessionOverLoadException, VimConnectionException
         """
