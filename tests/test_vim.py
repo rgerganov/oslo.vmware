@@ -102,6 +102,6 @@ class VimTest(base.TestCase):
     def test_configure_with_wsdl_url_override(self):
         vim_obj = vim.Vim('https', 'www.example.com',
                           wsdl_url='https://test.com/sdk/vimService.wsdl')
-        self.assertEqual("https://test.com/sdk/vimService.wsdl",
+        self.assertEqual('https://test.com/sdk/vimService.wsdl',
                          vim_obj.wsdl_url)
-        self.assertEqual("https://www.example.com/sdk", vim_obj.soap_url)
+        self.assertEqual('https://www.example.com/sdk', vim_obj.soap_url)

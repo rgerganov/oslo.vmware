@@ -30,7 +30,7 @@ from tests import base
 
 
 class ServiceMessagePluginTest(base.TestCase):
-    """Test class for VimMessagePlugin."""
+    """Test class for ServiceMessagePlugin."""
 
     def test_add_attribute_for_value(self):
         node = mock.Mock()
@@ -82,7 +82,7 @@ class ServiceTest(base.TestCase):
         except exceptions.VimFaultException as ex:
             self.assertEqual(fault_list, ex.fault_list)
 
-    def test_vim_request_handler(self):
+    def test_request_handler(self):
         managed_object = 'VirtualMachine'
         resp = mock.Mock()
 
@@ -98,7 +98,7 @@ class ServiceTest(base.TestCase):
         ret = svc_obj.powerOn(managed_object)
         self.assertEqual(resp, ret)
 
-    def test_vim_request_handler_with_retrieve_properties_ex_fault(self):
+    def test_request_handler_with_retrieve_properties_ex_fault(self):
         managed_object = 'Datacenter'
 
         def side_effect(mo, **kwargs):
@@ -113,7 +113,7 @@ class ServiceTest(base.TestCase):
         self.assertRaises(exceptions.VimFaultException,
                           lambda: svc_obj.retrievePropertiesEx(managed_object))
 
-    def test_vim_request_handler_with_web_fault(self):
+    def test_request_handler_with_web_fault(self):
         managed_object = 'VirtualMachine'
         fault_list = ['Fault']
 
@@ -147,7 +147,7 @@ class ServiceTest(base.TestCase):
             self.assertEqual({'name': 'value'}, ex.details)
             self.assertEqual("MyFault", ex.msg)
 
-    def test_vim_request_handler_with_attribute_error(self):
+    def test_request_handler_with_attribute_error(self):
         managed_object = 'VirtualMachine'
         svc_obj = service.Service()
         # no powerOn method in Vim
@@ -156,7 +156,7 @@ class ServiceTest(base.TestCase):
         self.assertRaises(exceptions.VimAttributeException,
                           lambda: svc_obj.powerOn(managed_object))
 
-    def test_vim_request_handler_with_http_cannot_send_error(self):
+    def test_request_handler_with_http_cannot_send_error(self):
         managed_object = 'VirtualMachine'
 
         def side_effect(mo, **kwargs):
@@ -171,7 +171,7 @@ class ServiceTest(base.TestCase):
         self.assertRaises(exceptions.VimSessionOverLoadException,
                           lambda: svc_obj.powerOn(managed_object))
 
-    def test_vim_request_handler_with_http_response_not_ready_error(self):
+    def test_request_handler_with_http_response_not_ready_error(self):
         managed_object = 'VirtualMachine'
 
         def side_effect(mo, **kwargs):
@@ -186,7 +186,7 @@ class ServiceTest(base.TestCase):
         self.assertRaises(exceptions.VimSessionOverLoadException,
                           lambda: svc_obj.powerOn(managed_object))
 
-    def test_vim_request_handler_with_http_cannot_send_header_error(self):
+    def test_request_handler_with_http_cannot_send_header_error(self):
         managed_object = 'VirtualMachine'
 
         def side_effect(mo, **kwargs):
@@ -201,7 +201,7 @@ class ServiceTest(base.TestCase):
         self.assertRaises(exceptions.VimSessionOverLoadException,
                           lambda: svc_obj.powerOn(managed_object))
 
-    def test_vim_request_handler_with_url_error(self):
+    def test_request_handler_with_url_error(self):
         managed_object = 'VirtualMachine'
 
         def side_effect(mo, **kwargs):
@@ -216,7 +216,7 @@ class ServiceTest(base.TestCase):
         self.assertRaises(exceptions.VimConnectionException,
                           lambda: svc_obj.powerOn(managed_object))
 
-    def test_vim_request_handler_with_http_error(self):
+    def test_request_handler_with_http_error(self):
         managed_object = 'VirtualMachine'
 
         def side_effect(mo, **kwargs):
@@ -232,13 +232,13 @@ class ServiceTest(base.TestCase):
                           lambda: svc_obj.powerOn(managed_object))
 
     @mock.patch.object(vim_util, 'get_moref', return_value=None)
-    def test_vim_request_handler_no_value(self, mock_moref):
+    def test_request_handler_no_value(self, mock_moref):
         managed_object = 'VirtualMachine'
         svc_obj = service.Service()
         ret = svc_obj.UnregisterVM(managed_object)
         self.assertIsNone(ret)
 
-    def _test_vim_request_handler_with_exception(self, message, exception):
+    def _test_request_handler_with_exception(self, message, exception):
         managed_object = 'VirtualMachine'
 
         def side_effect(mo, **kwargs):
@@ -253,20 +253,20 @@ class ServiceTest(base.TestCase):
         self.assertRaises(exception, lambda: svc_obj.powerOn(managed_object))
 
     def test_vim_request_handler_with_address_in_use_error(self):
-        self._test_vim_request_handler_with_exception(
+        self._test_request_handler_with_exception(
             service.ADDRESS_IN_USE_ERROR,
             exceptions.VimSessionOverLoadException)
 
     def test_vim_request_handler_with_conn_abort_error(self):
-        self._test_vim_request_handler_with_exception(
+        self._test_request_handler_with_exception(
             service.CONN_ABORT_ERROR, exceptions.VimSessionOverLoadException)
 
     def test_vim_request_handler_with_resp_not_xml_error(self):
-        self._test_vim_request_handler_with_exception(
+        self._test_request_handler_with_exception(
             service.RESP_NOT_XML_ERROR, exceptions.VimSessionOverLoadException)
 
     def test_vim_request_handler_with_generic_error(self):
-        self._test_vim_request_handler_with_exception(
+        self._test_request_handler_with_exception(
             'GENERIC_ERROR', exceptions.VimException)
 
     def test_get_session_cookie(self):
